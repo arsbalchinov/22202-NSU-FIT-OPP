@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH -J lab1-1
+#SBATCH -p compclass
+#SBATCH -o lab1-1-log.out
+#SBATCH -e lab1-1-log.err
+#SBATCH -N 2
+#SBATCH -n 16
+#SBATCH -c 1
+#SBATCH -t 00:02:00
+# Launch MPI-based executable
+
+module load mpi/intelmpi
+$HOME/22202/mpe2-2.4.9b/bin/mpecxx -mpilog -o <имя файла> <имя файла>.cpp
+mpiexec -n $SLURM_NTASKS ./<имя файла>

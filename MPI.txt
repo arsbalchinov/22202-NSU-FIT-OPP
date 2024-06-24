@@ -1,0 +1,111 @@
+MPI_Cart_create - создает новый коммуникатор, к которому были присоединены сведения о топологии.
+
+int MPIAPI MPI_Cart_create(comm_old, int ndims, int *dims, int *periods, int reorder, *comm_cart);
+comm_old - Входной коммуникатор.
+ndims - Количество измерений декартовой сетки.
+Dims - Целочисленный массив ndims размера, указывающий количество процессов в каждом измерении.
+periods - Логический массив ndim размера, указывающий, является ли сетка периодической (true) или нет (false) в каждом измерении.
+reorder - Ранжирование может быть переупорядочено (true) или нет (false).
+comm_cart - коммуникатор с новой декартовой топологией.
+
+
+MPI_Cart_sub - разделяет коммуникатор на подгруппы, которые образуют низкомерные декартовые подсети.
+Расщепление коммуникатора comm на подгруппы, соответствующие декартовым подрешёткам меньшей размерности.
+i-ый элемент массива равен true (1), если i-ое измерение должно остаться в подрешётке.
+
+int MPIAPI MPI_Cart_sub(MPI_Comm comm, int *remain_dims, MPI_Comm *newcomm);
+Comm - коммуникатор с декартовой структурой.
+remain_dims - i-ая запись remain_dims указывает, хранится ли i-е измерение в подсети (true) или удаляется (false).
+newcomm - коммуникатор, содержащий вложенную сетку, включающую вызывающий процесс.
+
+
+Пользовательские MPI-типы позволяют пересылать сложные структуры данных как один элемент.
+
+int MPIAPI MPI_Type_vector(int count, int blocklength, int stride, MPI_Datatype oldtype, MPI_Datatype *newtype);
+count - Количество блоков в созданном векторе.
+blocklength - Количество элементов в каждом блоке.
+stride - Количество элементов между началом одного блока и началом следующего блока.
+
+
+MPI_Type_create_struct - определяет новый тип данных с указанным типом данных, смещением и размером для каждого блока данных.
+
+int MPIAPI MPI_Type_create_struct(int count, int array_of_blocklengths[], MPI_Aint array_of_displacements[], MPI_Datatype array_of_types[], *newtype);
+count - Количество блоков и количество записей в параметрах array_of_blocklengths, array_of_displacements и array_of_types .
+array_of_blocklengths - Количество элементов каждого блока.
+array_of_displacements - Смещение каждого отдельного блока в байтах.
+array_of_types - Тип данных каждого отдельного блока.
+newtype [out] - При возврате содержит дескриптор MPI_Datatype, представляющий новый тип данных.
+
+MPI_Type_commit - фиксирует тип данных. (Объект типа данных должен быть зафиксирован, прежде чем его можно будет использовать в обмене данными)
+
+
+MPI_Scatter – распределение данных одного процесса между всеми процессами (поровну).
+
+int MPIAPI MPI_Scatter(void *sendbuf, int sendcount, sendtype, void *recvbuf, int recvcount, recvtype, int root, MPI_Comm comm);
+sendbuf - Дескриптор буфера, содержащего данные, отправляемые корневым процессом.
+sendcount - Количество элементов в буфере отправки.
+sendtype - Тип данных каждого элемента в буфере.
+recvbuf - Дескриптор буфера, содержащего данные, полученные в каждом процессе.
+recvcount - Количество элементов в буфере приема.
+recvtype - Тип данных элементов в буфере приема.
+root - Ранг процесса отправки в указанном коммуникаторе.
+Comm - Дескриптор MPI_Comm.
+
+int MPIAPI MPI_Scatterv(void *sendbuf, int *sendcounts, int *displs, sendtype, void *recvbuf, int recvcount, recvtype, int root, MPI_Comm comm);
+sendbuf - Указатель на буфер, содержащий данные, отправляемые корневым процессом.
+sendcounts - кол-во элементов, отправляемых в каждый процесс.
+displs - Расположения данных, отправляемых в каждый процесс коммуникатора. Каждое расположение в массиве относительно соответствующего элемента массива sendbuf.
+sendtype - Тип данных MPI для каждого элемента в буфере.
+recvbuf - Указатель на буфер, содержащий данные, полученные в каждом процессе.
+recvcount - Количество элементов в буфере приема.
+recvtype - Тип данных элементов в буфере получения.
+root - Ранг в процессе отправки в указанном коммуникаторе.
+Comm - Дескриптор коммуникатора MPI_Comm.
+
+
+MPI_Bcast – рассылка данных от одного процесса всем остальным.
+
+int MPIAPI MPI_Bcast(void *buffer, int count, datatype, int root, MPI_Comm comm);
+buffer [in, out] - Указатель на буфер данных.
+count - Количество элементов данных в буфере.
+datatype - Тип данных MPI элементов в буфере отправки.
+root - Ранг процесса, отправляющего данные.
+comm - Дескриптор MPI_Comm.
+
+MPI_Gather – сборка распределенных по всем процессам данных в одном процессе
+MPI_Gatherv - Собирает переменные данные по всем процессам в одном процессе.
+Функция MPI_Gatherv обеспечивает гибкость функции MPI_Gather, позволяя получать разное количество данных из каждого процесса.
+
+int MPIAPI MPI_Gatherv(void *sendbuf, int sendcount, sendtype, void *recvbuf, int *recvcounts[], int *displs[], recvtype, int root, MPI_Comm comm);
+sendbuf - Дескриптор буфера, который содержит данные, отправляемые корневому процессу.
+sendcount - Количество элементов в буфере отправки.
+sendtype - Тип данных каждого элемента в буфере.
+recvbuf [out, optional] - Дескриптор буфера корневого процесса, который содержит данные, полученные из каждого процесса, включая данные, отправляемые корневым процессом.
+Этот параметр имеет значение только в корневом процессе. Параметр recvbuf игнорируется для всех некорневых процессов.
+recvcounts[] [in, необязательный] - Количество элементов, полученных из каждого процесса. Каждый элемент в массиве соответствует рангу процесса отправки.
+displs[] [in, необязательный] - Расположение данных из каждого процесса коммуникатора относительно параметра recvbuf.
+recvtype - Тип данных каждого элемента в буфере.
+root - Ранг принимающего процесса в указанном коммуникаторе.
+Comm - Дескриптор MPI_Comm .
+
+
+MPI_Ineighbor_alltoallv	- Асинхронная (неблокирующая) коллективная операция.
+Nonblocking version of MPI_Neighbor_alltoallv, which is the vector variant of MPI_Neighbor_alltoall, allows sending/rcving different numbers of elements to and from each neighbor.
+In this function, each process 'i' receives data items from each process 'j' if an edge (j,i) exists in the topology graph or Cartesian topology.
+Similarly, each process 'i' sends data items to all processes 'j' where an edge (i,j) exists.
+This call is more general than MPI_NEIGHBOR_ALLGATHER in that different data items can be sent to each neighbor.
+The 'k'-th block in send buffer is sent to the 'k'-th neighboring process and the 'l'-th block in the receive buffer is received from the 'l'-th neighbor.
+
+int MPI_Ineighbor_alltoallv(*sendbuf, int sendcounts[], int sdispls[], sendtype, *recvbuf, int recvcounts[], int rdispls[], recvtype, comm, MPI_Request *request)
+MPI_Request - системный тип; идентификатор операции посылки-приема сообщения.
+
+MPI_Allreduce
+Объединяет значения из всех процессов и распределяет результат по всем процессам.
+
+int MPI_Allreduce(*sendbuf, *recvbuf, int count, datatype, MPI_Op op, comm)
+sendbuf - starting address of send buffer
+recvbuf - starting address of receive buffer
+count - number of elements in send buffer
+datatype - data type of elements of send buffer
+op - operation	(MPI_MAX и MPI_MIN ищут поэлементные максимум и минимум)
+comm - communicator
